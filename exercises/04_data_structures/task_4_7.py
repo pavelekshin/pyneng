@@ -16,3 +16,7 @@
 """
 
 mac = "AAAA:BBBB:CCCC"
+result = bin(int(mac.replace(":",""),base=16))
+result = result.lstrip("0b")
+print(result)
+
