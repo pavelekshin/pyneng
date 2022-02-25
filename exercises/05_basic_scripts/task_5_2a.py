@@ -49,3 +49,42 @@ bin_ip = "00001010000000010000000111000011"
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 
 """
+
+net, mask = input("Enter IP: ").split("/")
+a, b, c, d = net.split(".")
+mask_bin = "1" * int(mask) + "0" * (32 - int(mask))
+net_bin = ("{:08b}"*4).format(int(a),int(b),int(c),int(d))
+net_bin = net_bin[0 : int(mask)] + "0" * (32 - int(mask))
+net_dec = ("{:<8d}  " * 4).format(
+            int(net_bin[0:8], base=2),
+            int(net_bin[8:16], base=2),
+            int(net_bin[16:24], base=2),
+            int(net_bin[24:32], base=2),
+)
+net_format = ("{:<8}  " * 4).format(
+    net_bin[0:8], net_bin[8:16], net_bin[16:24], net_bin[24:32]
+)
+mask_format = ("{:<8}  " * 4).format(
+    mask_bin[0:8], mask_bin[8:16], mask_bin[16:24], mask_bin[24:32]
+)
+mask_dec = ("{:<8d}  " * 4).format(
+    int(mask_bin[0:8], base=2),
+    int(mask_bin[8:16], base=2),
+    int(mask_bin[16:24], base=2),
+    int(mask_bin[24:32], base=2),
+)
+print(
+    "Network:\n"
+    + net_dec
+    + "\n"
+    + net_format
+    + "\n"
+    + "\n"
+    + "Mask:\n"
+    + "/"
+    + mask
+    + "\n"
+    + mask_dec
+    + "\n"
+    + mask_format
+)
