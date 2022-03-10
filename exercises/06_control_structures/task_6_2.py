@@ -12,3 +12,15 @@
 
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 """
+ip_in = input("Please enter IP: ")
+ipaddr = ip_in.split(".")
+if ipaddr[0] >= "1" and ipaddr[0] <= "223":
+    print("unicast")
+elif ipaddr[0] >= "224" and ipaddr[0] <= "239":
+    print("multicast")
+elif (ipaddr.count(ipaddr[0]) == len(ipaddr)) and ipaddr[0] == "255":
+    print("local broadcast")
+elif (ipaddr.count(ipaddr[0]) == len(ipaddr)) and ipaddr[0] == "0":
+    print("unassigned")
+else:
+    print("unused")
