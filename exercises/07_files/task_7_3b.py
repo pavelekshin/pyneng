@@ -17,3 +17,22 @@ Enter VLAN number: 10
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 
 """
+
+from pprint import pprint
+
+user_input = input("Please ennter VLAN: ")
+
+with open("CAM_table.txt", "r") as f:
+    output = f.read()
+
+output = output.split("\n")
+sl = []
+for line in output:
+    if "DYNAMIC" in line:
+        vlan, mac, _dynamic, intf = line.split()
+        _ll = int(vlan), mac, intf
+        sl.append(list(_ll))
+sl = sorted(sl)
+for vlan, mac, intf in sl:
+    if vlan == int(user_input):
+        print(f"{vlan:<8} {mac:<24} {intf:<8}")
