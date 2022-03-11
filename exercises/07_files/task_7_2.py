@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Задание 7.2
@@ -39,3 +40,20 @@ interface Ethernet0/3
 ...
 
 """
+
+from pprint import pprint
+from sys import argv
+
+file = argv[1]
+
+with open(file, "r") as f:
+    output = f.read()
+
+output = output.split("\n")
+for line in output:
+    if line.startswith("!"):
+        pass
+    elif line.startswith(","):
+        pass
+    else:
+        print(line)
