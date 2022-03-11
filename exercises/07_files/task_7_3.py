@@ -20,3 +20,15 @@
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 
 """
+
+with open("CAM_table.txt", "r") as f:
+    output = f.read()
+
+output = output.split("\n")
+
+mac_d = []
+
+for line in output:
+    if "DYNAMIC" in line:
+        vlan, mac, _dynamic, intf = line.split()
+        print(f"{vlan:<8} {mac:<24} {intf:<8}")
