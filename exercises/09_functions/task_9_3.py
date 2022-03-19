@@ -23,3 +23,26 @@
 
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 """
+
+
+def get_int_vlan_map(config_filename):
+    with open(config_filename, "r") as f:
+        access_dict = {}
+        trunk_dict = {}
+        for line in f:
+            if "FastEthernet" in line:
+                intf = line.split()[-1]
+            elif "trunk allowed vlan" in line:
+                # trunk_dict[intf] = []
+                _vlan = line.split()[-1].split(",")
+                _vlan_list = []
+                _vlan_list = {int(item) for item in _vlan}
+                trunk_dict[intf] = sorted(_vlan_list)
+            elif "access vlan" in line:
+                access_dict[intf] = int(line.split()[-1])
+        return access_dict, trunk_dict
+
+
+access, trunk = get_int_vlan_map("config_sw1.txt")
+print(access)
+print(trunk)
