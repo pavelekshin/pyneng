@@ -80,9 +80,9 @@ def convert_config_to_dict(config_filename):
             ):
                 line = line.rstrip("\n")
                 conf_dict[line] = []
-                _line = line
+                _section = line
             elif line.startswith(" ") and not ignore_command(line, ignore):
-                conf_dict[_line].append(line.lstrip().rstrip("\n"))
+                conf_dict[_section].append(line.lstrip().rstrip("\n"))
         return conf_dict
 
 
