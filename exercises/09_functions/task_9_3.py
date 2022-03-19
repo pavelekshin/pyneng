@@ -26,9 +26,9 @@
 
 
 def get_int_vlan_map(config_filename):
+    access_dict = {}
+    trunk_dict = {}
     with open(config_filename, "r") as f:
-        access_dict = {}
-        trunk_dict = {}
         for line in f:
             if "FastEthernet" in line:
                 intf = line.split()[-1]
