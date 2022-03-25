@@ -34,6 +34,8 @@ R6           Fa 0/2          143           R S I           2811       Fa 0/0
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 """
 
+from pprint import pprint
+
 
 def parse_cdp_neighbors(command_output):
     """
@@ -43,6 +45,20 @@ def parse_cdp_neighbors(command_output):
     и с файлами и с выводом с оборудования.
     Плюс учимся работать с таким выводом.
     """
+    cdp_result = {}
+    out = command_output.split("\n")
+    # pprint(out)
+    for line in out:
+        if "show cdp neighbors" in line:
+            device, *_ = line.split(">")
+        elif line.startswith("S") or line.startswith("R"):
+            # print(line)
+            devid, lintf, lintf_n, *_, portn, portid = line.split()
+            cdp_result[f"{device} {lintf}{lintf_n}"] = f"{devid} {portn}{portid}"
+    result = {
+        tuple(key.split()): tuple(value.split()) for key, value in cdp_result.items()
+    }
+    return result
 
 
 if __name__ == "__main__":
