@@ -17,3 +17,26 @@ IP-адрес считается доступным, если выполнени
 
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 """
+
+import subprocess
+
+from pprint import pprint
+
+iplist = ["192.168.1.1", "127.0.0.1", "192.168.100.100"]
+
+
+def ping_ip_addresses(ip_address):
+    ok = []
+    n_ok = []
+    for address in ip_address:
+        command = f"ping {address} -c1"
+        result = subprocess.run(command.split(),stdout=subprocess.DEVNULL)
+        if result.returncode == 0:
+            ok.append(address)
+        else:
+            n_ok.append(address)
+    return ok, n_ok
+
+
+if __name__ == "__main__":
+    ping_ip_addresses(iplist)
