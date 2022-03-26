@@ -73,6 +73,11 @@
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 
 """
+from pprint import pprint
+
+from task_11_2 import create_network_map
+
+from draw_network_graph import draw_topology
 
 infiles = [
     "sh_cdp_n_sw1.txt",
@@ -80,3 +85,26 @@ infiles = [
     "sh_cdp_n_r2.txt",
     "sh_cdp_n_r3.txt",
 ]
+
+
+def unique_network_map(topology_dict):
+    """
+    Create unique network topology
+    """
+    # pprint(topology_dict)
+    result = {}
+    #    unique_map = {
+    #        key: value
+    #        for key, value in topology_dict.items()
+    #        if key not in unique_map.values()
+    #    }
+    for key, value in topology_dict.items():
+        if key not in result.values():
+            result[key] = value
+    return result
+
+
+if __name__ == "__main__":
+    nmap = create_network_map(infiles)
+    # draw_topology(nmap)
+    draw_topology(unique_network_map(nmap))
