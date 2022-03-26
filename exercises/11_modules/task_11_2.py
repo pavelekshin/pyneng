@@ -41,11 +41,6 @@ infiles = [
 ]
 
 
-#def sorted_dict(indict):
-#    result = {key: value for key, value in sorted(indict.items())}
-#    return result
-
-
 def create_network_map(filenames):
     """
     Network map function
@@ -54,8 +49,7 @@ def create_network_map(filenames):
     for file in infiles:
         with open(file, "r") as f:
             network_map.update(parse_cdp_neighbors(f.read()))
-#    result = (sorted_dict(network_map))
-#    pprint(network_map)
+#   pprint(network_map)
     return network_map
 
 
