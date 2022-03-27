@@ -18,3 +18,21 @@ Reachable    Unreachable
              10.1.1.9
 
 """
+
+from tabulate import tabulate
+from pprint import pprint
+from itertools import zip_longest
+
+from task_12_1 import ping_ip_addresses
+
+ok = ["192.168.1.1", "127.0.0.1", "192.168.100.100", "125.0.1.24"]
+nok = ["111.111.111.111"]
+
+
+def print_ip_table(ok, nok):
+    printlist = zip_longest(ok, nok)
+    print(tabulate(printlist, headers=["Reachable", "Unreachable"]))
+
+
+if __name__ == "__main__":
+    print_ip_table(ok, nok)
