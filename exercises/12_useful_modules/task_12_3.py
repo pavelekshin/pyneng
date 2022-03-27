@@ -30,8 +30,8 @@ nok = ["111.111.111.111"]
 
 
 def print_ip_table(ok, nok):
-    printlist = zip_longest(ok, nok)
-    print(tabulate(printlist, headers=["Reachable", "Unreachable"]))
+    table = {"Reachable": ok, "Unreachable": nok}
+    print(tabulate(table, headers="keys"))
 
 
 if __name__ == "__main__":
