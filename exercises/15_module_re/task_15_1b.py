@@ -37,19 +37,16 @@ regex = r"ip address ([\d.]+) ([\d.]+)\W|secondary"
 
 def get_ip_from_cfg(config):
     result_dict = {}
-    d = {}
     with open(config, "r") as f:
         for line in f:
             if line.startswith("interface"):
                 intf = line.split()[-1]
-                result_dict[intf] = []
             elif line.startswith(" "):
                 m = re.search(regex, line)
                 if m:
+                    result_dict.setdefault(intf,[])
                     result_dict[intf].append(m.groups())
-    d = {key:value for key, value in result_dict.items() if len(value)}
-    return d
-
+    return result_dict
 
 if __name__ == "__main__":
     result = get_ip_from_cfg("config_r2.txt")
