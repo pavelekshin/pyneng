@@ -23,3 +23,23 @@
 а не ввод пользователя.
 
 """
+
+import re
+from pprint import pprint
+
+regex = r"ip address ([\d.]+) ([\d.]+)"
+
+
+def get_ip_from_cfg(config):
+    result_list = []
+    with open(config, "r") as f:
+        for line in f:
+            m = re.search(regex, line)
+            if m:
+                result_list.append(m.groups())
+    return result_list
+
+
+if __name__ == "__main__":
+    result = get_ip_from_cfg("config_r1.txt")
+    pprint(result)
