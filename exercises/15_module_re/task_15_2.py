@@ -28,7 +28,7 @@ from pprint import pprint
 
 def parse_sh_ip_int_br(file):
     result = []
-    regex = r"(?P<intf>[A-Z]\S+)\s+(?P<ip>\S+)\s+\S+\s+\S+\s+(?P<status>up|down|\S+\s\S+)\s+(?P<protocol>\S+)"
+    regex = r"(?P<intf>[A-Z]\S+)\s+(?P<ip>\S+)\s+YES\s+\S+\s+(?P<status>up|down|\S+\s\S+)\s+(?P<protocol>\S+)"
     with open(file, "r") as f:
         for line in f:
             m = re.search(regex,line)
