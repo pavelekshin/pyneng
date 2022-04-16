@@ -46,8 +46,6 @@ def get_ip_from_cfg(config):
             elif line.startswith(" "):
                 m = re.search(regex, line)
                 if m:
-                    # print(intf,m.groups())
-                    #result_dict[intf] = []
                     result_dict[intf].append(m.groups())
     d = {key:value for key, value in result_dict.items() if len(value)}
     return d
