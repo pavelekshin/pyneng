@@ -38,7 +38,7 @@ from pprint import pprint
 
 
 def convert_ios_nat_to_asa(src, dst):
-    regex = r".+? (?P<protocol>tcp|udp) (?P<ip>\S+) (?P<dst>\S+) \S+ \S+ (?P<src>\S+)"
+    regex = r"(?P<protocol>tcp|udp) (?P<ip>\S+) (?P<dst>\S+) \S+ \S+ (?P<src>\S+)"
     with open(src, "r") as src, open(dst, "w") as dst:
         for line in src:
             m = re.search(regex, line)
