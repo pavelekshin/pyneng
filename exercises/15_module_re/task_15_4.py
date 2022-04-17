@@ -40,7 +40,7 @@ def get_ints_without_description(file):
             m = re.search(regex, line)
             if m:
                 intf = m.group("intf")
-                if m.lastgroup != "desc":
+                if m.lastgroup == "intf":
                     result.append(intf)
                     _f = intf
                 elif _f in result:
