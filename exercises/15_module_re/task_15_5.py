@@ -26,3 +26,24 @@ description Connected to SW1 port Eth 0/1
 
 Проверить работу функции на файле sh_cdp_n_sw1.txt.
 """
+
+import re
+from pprint import pprint
+
+
+def generate_description_from_cdp(file):
+    regex = r"(?P<Devid>[A-Z]+\d+)\s+(?P<Lintf>\S+ \S+) +.+?(?P<Portid>[GEF]\S+ \S+)"
+    result = {}
+    with open(file, "r") as f:
+        for line in f:
+            m = re.search(regex, line)
+            if m:
+                result[
+                    m.group("Lintf")
+                ] = f"""description Connected to {m.group("Devid")} port {m.group("Portid")}"""
+
+    return result
+
+
+if __name__ == "__main__":
+    pprint(generate_description_from_cdp("sh_cdp_n_sw1.txt"))
