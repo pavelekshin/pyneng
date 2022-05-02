@@ -48,14 +48,12 @@ import csv
 from pprint import pprint
 import re
 
-headers = ["hostname", "ios", "image", "uptime"]
-
 
 def parse_sh_version(file):
     regex = (
-        r"Cisco IOS.+?(?=Version (\S+),)"  # ios
-        r"|((?:flash|disk.):\S+?(?=\"))"  # image
-        r"|uptime is (\d+.+minutes)"  # uptime
+        "Cisco IOS.+?(?=Version (?P<ios>\S+),)"  # ios
+        "|(?P<image>(?:flash|disk.):\S+?(?=\"))"  # image
+        "|uptime is (?P<uptime>\d+.+minutes)"  # uptime
     )
     match = re.findall(regex, file, re.DOTALL)
     parsing_values = [
@@ -69,6 +67,7 @@ def parse_sh_version(file):
 
 
 def write_inventory_to_csv(data_filenames, csv_filename):
+    headers = ["hostname", "ios", "image", "uptime"]
     result = []
     if type(data_filenames) is list:
         for filename in data_filenames:
