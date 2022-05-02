@@ -33,6 +33,7 @@ sw2_dhcp_snooping.txt, sw3_dhcp_snooping.txt.
 """
 
 import csv
+import glob
 import re
 from pprint import pprint
 
@@ -60,9 +61,5 @@ def write_dhcp_snooping_to_csv(filenames, output):
 
 
 if __name__ == "__main__":
-    filenames = [
-        "sw1_dhcp_snooping.txt",
-        "sw2_dhcp_snooping.txt",
-        "sw3_dhcp_snooping.txt",
-    ]
+    filenames = glob.glob("*_dhcP_snooping.txt")
     write_dhcp_snooping_to_csv(filenames, "out.csv")
