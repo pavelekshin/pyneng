@@ -44,8 +44,54 @@
 """
 
 import glob
-
-sh_version_files = glob.glob("sh_vers*")
-# print(sh_version_files)
+import csv
+from pprint import pprint
+import re
 
 headers = ["hostname", "ios", "image", "uptime"]
+
+
+def parse_sh_version(file):
+    regex = (
+        r"Cisco IOS.+?(?=Version (\S+),)"  # ios
+        r"|((?:flash|disk.):\S+?(?=\"))"  # image
+        r"|uptime is (\d+.+minutes)"  # uptime
+    )
+    match = re.findall(regex, file, re.DOTALL)
+    parsing_values = [
+        value for value_list in match for value in value_list if len(value)
+    ]
+    parsing_values.insert(
+        1, parsing_values.pop(-1)
+    )  # change order for image and uptime
+    
+    return tuple(parsing_values)
+
+
+def write_inventory_to_csv(data_filenames, csv_filename):
+    result = []
+    if type(data_filenames) is list:
+        for filename in data_filenames:
+            router_name = filename.split(".")[0].split("_")[-1]
+            with open(filename, "r", encoding="utf-8") as f, open(
+                csv_filename, "w", encoding="utf-8"
+            ) as w:
+                file = f.read()
+                values = [value for value in parse_sh_version(file)]
+                values.insert(0, router_name)
+                print(values)
+                result.append(dict(zip(headers, values)))
+                writer = csv.DictWriter(
+                    w,
+                    fieldnames=headers,
+                    quoting=csv.QUOTE_ALL,
+                )
+                writer.writeheader()
+                for d in result:
+                    writer.writerow(d)
+    return None
+
+
+if __name__ == "__main__":
+    sh_version_files = glob.glob("sh_version_*.txt")
+    write_inventory_to_csv(sh_version_files, "out.csv")
