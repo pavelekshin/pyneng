@@ -31,3 +31,38 @@ sw3,00:E9:22:11:A6:50,100.1.1.7,3,FastEthernet0/21
 sw2_dhcp_snooping.txt, sw3_dhcp_snooping.txt.
 
 """
+
+import csv
+import re
+from pprint import pprint
+
+
+def write_dhcp_snooping_to_csv(filenames, output):
+    regex = r"(?P<mac>\S+)\s+(?P<ip>\S+) +\d+ +\S+ +(?P<vlan>\d+) +(?P<interface>\S+)"
+    header = ["switch", "mac", "ip", "vlan", "interface"]
+    result = []
+    if type(filenames) is list:
+        for item in filenames:
+            sw_name = item.split("_")[0]
+            with open(item, "r", encoding="utf-8") as f, open(
+                output, "w", encoding="utf-8"
+            ) as w:
+                for line in f:
+                    match = re.search(regex, line)
+                    if match:
+                        _i = f"""{sw_name} {match.group("mac")} {match.group("ip")} {match.group("vlan")} {match.group("interface")}"""
+                        result.append(dict(zip(header, _i.split())))
+                writer = csv.DictWriter(w, fieldnames=header, quoting=csv.QUOTE_NONE)
+                writer.writeheader()
+                for d in result:
+                    writer.writerow(d)
+    return None
+
+
+if __name__ == "__main__":
+    filenames = [
+        "sw1_dhcp_snooping.txt",
+        "sw2_dhcp_snooping.txt",
+        "sw3_dhcp_snooping.txt",
+    ]
+    write_dhcp_snooping_to_csv(filenames, "out.csv")
