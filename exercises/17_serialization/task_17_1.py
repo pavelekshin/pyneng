@@ -42,9 +42,9 @@ def write_dhcp_snooping_to_csv(filenames, output):
     header = ["switch", "mac", "ip", "vlan", "interface"]
     result = []
     if type(filenames) is list:
-        for item in filenames:
-            sw_name = item.split("_")[0]
-            with open(item, "r", encoding="utf-8") as f, open(
+        for filename in filenames:
+            sw_name = filename.split("_")[0]
+            with open(filename, "r", encoding="utf-8") as f, open(
                 output, "w", encoding="utf-8"
             ) as w:
                 for line in f:
