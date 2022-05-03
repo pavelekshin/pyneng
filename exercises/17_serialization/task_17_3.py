@@ -35,8 +35,7 @@ def parse_sh_cdp_neighbors(cdp_output):
         "(?P<dev>\S+?(?=>)).+\n"   # Router name
         "|(?P<neigh>\w[1-9]) +(?P<lport>Eth \S+) .+ (?P<rport>Eth \S+)"  #Neighbors, port
     )
-    pprint(cdp_output)
-    match = re.finditer(regex, cdp_output, re.M)
+    match = re.finditer(regex, cdp_output, re.MULTILINE)
     for m in match:
         if m.lastgroup == "dev":
             dev = m.group("dev")
