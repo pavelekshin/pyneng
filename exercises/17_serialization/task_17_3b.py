@@ -43,3 +43,30 @@
 > pip install graphviz
 
 """
+
+import yaml
+import glob
+from pprint import pprint
+from task_17_3a import parse_sh_cdp_neighbors
+from draw_network_graph import draw_topology
+
+def transform_topology(topology):
+    result = {}
+    _k,_v = [],[]
+    if topology:
+        with open(topology,"r",encoding="utf-8") as f:
+            topology_dict = yaml.safe_load(f)
+            for device,params in topology_dict.items():
+                for key,value in params.items():
+                    _k.append((device,key))
+                    [_v.append((key,value)) for key,value in value.items()]
+            d = dict(zip(_k,_v))
+        for key,value in d.items():
+            if key not in result.values():
+                result[key] = value
+    return result
+
+
+if __name__ == "__main__":
+    topology = transform_topology("topology.yaml")
+    draw_topology(topology)
