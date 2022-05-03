@@ -24,3 +24,28 @@ R6           Fa 0/2          143           R S I           2811       Fa 0/0
 
 Проверить работу функции на содержимом файла sh_cdp_n_sw1.txt
 """
+
+import re
+from pprint import pprint
+
+
+def parse_sh_cdp_neighbors(cdp_output):
+    result = {}
+    regex = (
+        "(?P<dev>\S+?(?=>)).+\n"   # Router name
+        "|(?P<neigh>\w[1-9]) +(?P<lport>Eth \S+) .+ (?P<rport>Eth \S+)"  #Neighbors, port
+    )
+    pprint(cdp_output)
+    match = re.finditer(regex, cdp_output, re.M)
+    for m in match:
+        if m.lastgroup == "dev":
+            dev = m.group("dev")
+            result.setdefault(dev,{})
+        elif dev:
+            result[dev][m.group("lport")] = {m.group("neigh"):m.group("rport")}
+    return result
+
+
+if __name__ == "__main__":
+    with open("sh_cdp_n_sw1.txt") as f:
+        print(parse_sh_cdp_neighbors(f.read()))
