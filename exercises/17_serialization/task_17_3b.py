@@ -49,18 +49,23 @@ import glob
 from pprint import pprint
 from draw_network_graph import draw_topology
 
+
 def transform_topology(topology):
     result = {}
-    _k,_v = [],[]
+    _k, _v = [], []
     if topology:
-        with open(topology,"r",encoding="utf-8") as f:
+        with open(topology, "r", encoding="utf-8") as f:
             topology_dict = yaml.safe_load(f)
-            for device,params in topology_dict.items():
-                for key,value in params.items():
-                    _k.append((device,key))
-                    [_v.append((key,value)) for key,value in value.items()]
-            d = dict(zip(_k,_v))
-        for key,value in d.items():
+            for device, params in topology_dict.items():
+                for key, value in params.items():
+                    _k.append((device, key))  # create list key pair ('R4', 'Fa 0/1')
+                    [
+                        _v.append((key, value)) for key, value in value.items()
+                    ]  # create list value pair ('R5', 'Fa 0/1')
+                    d = dict(
+                        zip(_k, _v)
+                    )  # create dictionary with list key:value ('R4', 'Fa 0/1'): ('R5', 'Fa 0/1')
+        for key, value in d.items():  # create new dictionary with unique key:value pair
             if key not in result.values():
                 result[key] = value
     return result
