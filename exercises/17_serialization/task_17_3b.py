@@ -47,7 +47,6 @@
 import yaml
 import glob
 from pprint import pprint
-from task_17_3a import parse_sh_cdp_neighbors
 from draw_network_graph import draw_topology
 
 def transform_topology(topology):
