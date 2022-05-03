@@ -36,3 +36,41 @@
 в файл topology.yaml. Он понадобится в следующем задании.
 
 """
+
+import re
+import glob
+import yaml
+from pprint import pprint
+
+
+def parse_sh_cdp_neighbors(cdp_output):
+    result = {}
+    regex = (
+        "(?P<dev>\S+?(?=>)).+\n"  # Router name
+        "|(?P<neigh>\w+[1-9]) +(?P<lport>Eth \S+) .+ (?P<rport>Eth \S+)"  # Neighbors, port
+    )
+    match = re.finditer(regex, cdp_output, re.MULTILINE)
+    for m in match:
+        if m.lastgroup == "dev":
+            dev = m.group("dev")
+            result.setdefault(dev, {})
+        elif dev:
+            result[dev][m.group("lport")] = {m.group("neigh"): m.group("rport")}
+    return result
+
+
+def generate_topology_from_cdp(list_of_files, save_to_filename=None):
+    result = {}
+    if list_of_files:
+        for file in list_of_files:
+            with open(file, "r", encoding="utf-8") as f:
+                result.update(parse_sh_cdp_neighbors(f.read()))
+        if save_to_filename:
+            with open(save_to_filename, "w", encoding="utf-8") as w:
+                yaml.dump(result, w, default_flow_style=False)
+        return result
+
+
+if __name__ == "__main__":
+    list_of_files = glob.glob("sh_cdp_n_*.txt")
+    generate_topology_from_cdp(list_of_files,"topology.yaml")
