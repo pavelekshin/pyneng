@@ -94,7 +94,50 @@ R1(config)#a
 """
 
 # списки команд с ошибками и без:
+
+
+from pprint import pprint
+import yaml
+import re
+from netmiko import (
+    ConnectHandler,
+    NetmikoTimeoutException,
+    NetmikoAuthenticationException,
+)
+
 commands_with_errors = ["logging 0255.255.1", "logging", "a"]
 correct_commands = ["logging buffered 20010", "ip http server"]
-
 commands = commands_with_errors + correct_commands
+
+regex = (r"Invalid input detected"
+         r"|Incomplete command"
+         r"|Ambiguous command")
+
+
+
+def send_config_commands(device, config_commands, log=True):
+    good,bad = {},{}
+    try:
+        if log:
+            print(f"""Подключаюсь к {device["host"]}...""")
+        with ConnectHandler(**device) as ssh:
+            ssh.enable()
+            for command in config_commands:
+                result = ssh.send_config_set(command)
+                match = re.search(regex,result)
+                if match:
+                    print(f"""Комманда "{command}" выполнилась с ошибкой "{match.group()}" на устройстве {device["host"]}""")
+                    bad[command] = result
+                else:
+                    good[command] = result
+        return good,bad
+    except (NetmikoTimeoutException, NetmikoAuthenticationException) as error:
+        print(error)
+
+
+if __name__ == "__main__":
+    with open("devices.yaml") as f:
+        devices = yaml.safe_load(f)
+
+    for dev in devices:
+        pprint(send_config_commands(dev, commands,log=False))
