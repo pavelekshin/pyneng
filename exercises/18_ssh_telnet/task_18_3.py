@@ -69,9 +69,9 @@ def send_commands(device, *, show=None, config=None):
         raise ValueError("Pass at least one command")
     elif show and config:
         raise ValueError("Pass show or config command")
-    elif show and type(show) is str:
+    elif show:
         return send_show_command(device, show)
-    elif config and type(config) is list:
+    elif config:
         return send_config_commands(device, config)
 
 
