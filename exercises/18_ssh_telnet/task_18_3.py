@@ -52,17 +52,16 @@ commands = ["logging 10.255.255.1", "logging buffered 20010", "no logging consol
 command = "sh ip int br"
 
 
-from pprint import pprint
 import yaml
-import re
+from pprint import pprint
 from netmiko import (
     ConnectHandler,
     NetmikoTimeoutException,
     NetmikoAuthenticationException,
 )
 
-commands = ["logging 10.255.255.1", "logging buffered 20010", "no logging console"]
-command = "sh ip int br"
+from task_18_1 import send_show_command
+from task_18_2 import send_config_commands
 
 
 def send_commands(device, *, show=None, config=None):
@@ -76,29 +75,11 @@ def send_commands(device, *, show=None, config=None):
         return send_config_commands(device, config)
 
 
-def send_show_command(device, command):
-    try:
-        with ConnectHandler(**device) as ssh:
-            ssh.enable()
-            result = ssh.send_command(command)
-        return result
-    except (NetmikoTimeoutException, NetmikoAuthenticationException) as error:
-        print(error)
-
-
-def send_config_commands(device, config_commands):
-    try:
-        with ConnectHandler(**device) as ssh:
-            ssh.enable()
-            result = ssh.send_config_set(config_commands)
-        return result
-    except (NetmikoTimeoutException, NetmikoAuthenticationException) as error:
-        print(error)
-
-
 if __name__ == "__main__":
+    commands = ["logging 10.255.255.1", "logging buffered 20010", "no logging console"]
+    command = "sh ip int br"
     with open("devices.yaml") as f:
         devices = yaml.safe_load(f)
 
     for dev in devices:
-        pprint(send_commands(dev, "sh clock"))
+        pprint(send_commands(dev, show=command))
