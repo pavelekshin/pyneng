@@ -47,3 +47,56 @@ commands = {
     "192.168.100.1": "sh ip int br",
     "192.168.100.2": "sh int desc",
 }
+
+
+from pprint import pprint
+import yaml
+from netmiko import (
+    ConnectHandler,
+    NetmikoTimeoutException,
+    NetmikoAuthenticationException,
+)
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+
+def send_show_command(device, command):
+    try:
+        with ConnectHandler(**device) as ssh:
+            ssh.enable()
+            result = ssh.send_command(command, strip_command=True, strip_prompt=True)
+            router = ssh.find_prompt()
+        return router, result, command
+    except (NetmikoTimeoutException, NetmikoAuthenticationException) as error:
+        print(error)
+
+
+def save_data(filename, data):
+    with open(filename, "w") as w:
+        for f in data:
+            router, value, command = f.result() 
+            w.write(f"{router}{command}" + "\n")
+            w.write(f"{value}" + "\n")
+
+
+def send_command_to_devices(devices, commands_dict, filename, limit=3):
+    with ThreadPoolExecutor(max_workers=limit) as executor:
+        future_list = []
+        for device in devices:
+            command = commands_dict.get(device["host"])
+            future = executor.submit(send_show_command, device, command)
+            future_list.append(future)
+    save_data(filename,future_list)
+    return None
+
+
+if __name__ == "__main__":
+    commands = {
+        "192.168.100.3": "sh run | s ^router ospf",
+        "192.168.100.1": "sh ip int br",
+        "192.168.100.2": "sh int desc",
+    }
+
+    with open("devices.yaml") as f:
+        devices = yaml.safe_load(f)
+
+    print(send_command_to_devices(devices, commands, filename="out_2.txt"))
