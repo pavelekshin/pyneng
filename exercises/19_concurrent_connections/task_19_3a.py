@@ -51,8 +51,58 @@ O        10.30.0.0/24 [110/20] via 192.168.100.1, 07:12:03, Ethernet0/0
 
 # Этот словарь нужен только для проверки работа кода, в нем можно менять IP-адреса
 # тест берет адреса из файла devices.yaml
-commands = {
-    "192.168.100.3": ["sh ip int br", "sh ip route | ex -"],
-    "192.168.100.1": ["sh ip int br", "sh int desc"],
-    "192.168.100.2": ["sh int desc"],
-}
+
+
+from pprint import pprint
+import yaml
+import glob
+from netmiko import (
+    ConnectHandler,
+    NetmikoTimeoutException,
+    NetmikoAuthenticationException,
+)
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+
+def send_show_command(device, command):
+    try:
+        with ConnectHandler(**device) as ssh:
+            ssh.enable()
+            result = ssh.send_command(command, strip_command=True, strip_prompt=True)
+            router = ssh.find_prompt()
+        return router, result, command
+    except (NetmikoTimeoutException, NetmikoAuthenticationException) as error:
+        print(error)
+
+
+def save_data(filename, data):
+    with open(filename, "w") as w:
+        for d in data:
+            router, value, command = d.result()
+            w.write(f"{router}{command}" + "\n")
+            w.write(f"{value}" + "\n")
+
+
+def send_command_to_devices(devices, commands_dict, filename, limit=3):
+    with ThreadPoolExecutor(max_workers=limit) as executor:
+        future_list = []
+        for device in devices:
+            commands = commands_dict.get(device["host"])
+            for command in commands:
+                future = executor.submit(send_show_command, device, command)
+                future_list.append(future)
+    save_data(filename, future_list)
+    return None
+
+
+if __name__ == "__main__":
+    commands = {
+        "192.168.100.3": ["sh ip int br", "sh ip route | ex -"],
+        "192.168.100.1": ["sh ip int br", "sh int desc"],
+        "192.168.100.2": ["sh int desc"],
+    }
+
+    with open("devices.yaml") as f:
+        devices = yaml.safe_load(f)
+
+    print(send_command_to_devices(devices, commands, filename="out_3.txt", limit=5))
