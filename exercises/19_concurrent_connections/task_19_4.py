@@ -123,7 +123,7 @@ def send_show_command(device, command):
             ssh.enable()
             result = ssh.send_command(command, strip_command=True, strip_prompt=True)
             router = ssh.find_prompt()
-        return router, result, command
+        return f"{router}{command} \n {result}\n"
     except (NetmikoTimeoutException, NetmikoAuthenticationException) as error:
         print(error)
 
@@ -134,23 +134,15 @@ def send_config_commands(device, command):
             ssh.enable()
             result = ssh.send_config_set(command)
             router = ssh.find_prompt()
-        return router, result, command
+        return f"{result} \n"
     except (NetmikoTimeoutException, NetmikoAuthenticationException) as error:
         print(error)
 
 
 def save_data(filename, data, fname):
-    if fname is send_show_command:
-        template = "{}{} \n {}\n"
-    elif fname is send_config_commands:
-        template = "{} \n"
     with open(filename, "w") as w:
         for d in data:
-            router, value, command = d.result()
-            if fname is send_show_command:
-                w.write(template.format(router, command, value))
-            elif fname is send_config_commands:
-                w.write(template.format(value))
+            w.write(d.result())
 
 
 def send_commands_to_devices(device, filename, *, show=None, config=None, limit=3):
@@ -174,15 +166,8 @@ def thread_app(devices, command, filename, limit=3, *, fname):
 
 
 if __name__ == "__main__":
-    commands = {
-        "192.168.100.3": ["sh ip int br", "sh ip route | ex -"],
-        "192.168.100.1": ["sh ip int br", "sh int desc"],
-        "192.168.100.2": ["sh int desc"],
-    }
-
     with open("devices.yaml") as f:
         devices = yaml.safe_load(f)
-
     print(
         send_commands_to_devices(
             devices, filename="out_4.txt", config="logging 10.5.5.5", limit=5
