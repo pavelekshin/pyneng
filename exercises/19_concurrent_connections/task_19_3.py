@@ -51,6 +51,7 @@ commands = {
 
 from pprint import pprint
 import yaml
+import glob
 from netmiko import (
     ConnectHandler,
     NetmikoTimeoutException,
@@ -65,17 +66,15 @@ def send_show_command(device, command):
             ssh.enable()
             result = ssh.send_command(command, strip_command=True, strip_prompt=True)
             router = ssh.find_prompt()
-        return router, result, command
+        return f"{router}{command} \n {result} \n"
     except (NetmikoTimeoutException, NetmikoAuthenticationException) as error:
         print(error)
 
 
 def save_data(filename, data):
     with open(filename, "w") as w:
-        for f in data:
-            router, value, command = f.result() 
-            w.write(f"{router}{command}" + "\n")
-            w.write(f"{value}" + "\n")
+        for d in data:
+            w.write(d.result())
 
 
 def send_command_to_devices(devices, commands_dict, filename, limit=3):
@@ -85,7 +84,7 @@ def send_command_to_devices(devices, commands_dict, filename, limit=3):
             command = commands_dict.get(device["host"])
             future = executor.submit(send_show_command, device, command)
             future_list.append(future)
-    save_data(filename,future_list)
+    save_data(filename, future_list)
     return None
 
 
