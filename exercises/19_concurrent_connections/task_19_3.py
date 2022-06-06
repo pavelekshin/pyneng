@@ -85,7 +85,6 @@ def send_command_to_devices(devices, commands_dict, filename, limit=3):
             future = executor.submit(send_show_command, device, command)
             future_list.append(future)
     save_data(filename, future_list)
-    return None
 
 
 if __name__ == "__main__":
