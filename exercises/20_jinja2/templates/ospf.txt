@@ -6,15 +6,13 @@ router ospf {{ process }}
  network {{ networks.ip }} 0.0.0.0 area {{ networks.area }}
  {% endfor %}
 {% for networks in ospf_intf %}
- {% if networks.passive  == True %}
+ {% if networks.passive %}
  passive-interface {{ networks.name }}
  {% endif %}
 {% endfor %}
-{% for networks in ospf_intf %}
- {% if networks.passive == False %}
+{% for networks in ospf_intf if not networks.passive %}
 interface {{ networks.name }}
  ip ospf hello-interval 1
- {% endif %}
 {% endfor %}
 {% endif %}
 
