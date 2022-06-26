@@ -38,10 +38,99 @@
 Они должны быть, но тест упрощен, чтобы было больше свободы выполнения.
 """
 
-data = {
-    "tun_num": None,
-    "wan_ip_1": "192.168.100.1",
-    "wan_ip_2": "192.168.100.2",
-    "tun_ip_1": "10.0.1.1 255.255.255.252",
-    "tun_ip_2": "10.0.1.2 255.255.255.252",
-}
+from pprint import pprint
+import yaml
+import re
+from netmiko import (
+    ConnectHandler,
+    NetmikoTimeoutException,
+    NetmikoAuthenticationException,
+)
+from concurrent.futures import ThreadPoolExecutor
+
+from task_20_1 import generate_config
+from task_20_5 import create_vpn_config
+
+
+def send_show_command(device, command):
+    try:
+        with ConnectHandler(**device) as ssh:
+            ssh.enable()
+            result = ssh.send_command(command)
+            router = ssh.find_prompt()
+        return {router: result}
+    except (NetmikoTimeoutException, NetmikoAuthenticationException) as error:
+        print(error)
+
+
+def send_config_command(device, command):
+    try:
+        with ConnectHandler(**device) as ssh:
+            ssh.enable()
+            result = ssh.send_config_set(command)
+        return f"{result} \n"
+    except (NetmikoTimeoutException, NetmikoAuthenticationException) as error:
+        print(error)
+
+
+def send_show_command_to_devices(devices, *, command=None, limit=3):
+    with ThreadPoolExecutor(max_workers=limit) as executor:
+        future_list = []
+        for device in devices:
+            future = executor.submit(send_show_command, device, command)
+            future_list.append(future)
+    return parse_data(future_list)
+
+
+def parse_data(future_list):
+    regex = r"(Tunnel(\d+))"
+    tunnel_int = {}
+    for d in future_list:
+        data = d.result()
+        for router, value in data.items():
+            tunnel_int.setdefault(router, {"tunnels": [], "tunnels_numbers": []})
+            if value.startswith("Tunnel"):
+                m = re.findall(regex, value)
+                if m:
+                    for item in m:
+                        tunnel_int[router]["tunnels"].append(item[0])
+                        tunnel_int[router]["tunnels_numbers"].append(item[1])
+    return tunnel_int
+
+
+def configure_vpn(
+    src_device_params, dst_device_params, src_template, dst_template, vpn_data_dict
+):
+    command = "sh ip int br | b Tunnel"
+    devices = []
+    [devices.append(d) for d in [src_device_params, dst_device_params]]
+    sh_int_tunnel = send_show_command_to_devices(devices, command=command)
+    unique_used_tunnels = {
+        int(item)
+        for key, items in sh_int_tunnel.items()
+        for item in items["tunnels_numbers"]
+    }
+    select_tunnel = [num for num in range(0, 100) if num not in unique_used_tunnels]
+    vpn_data_dict["tun_num"] = min(select_tunnel)
+    src_command, dst_command = create_vpn_config(
+        src_template, dst_template, vpn_data_dict
+    )
+    src_dev = send_config_command(src_device_params, src_command.split("\n"))
+    dst_dev = send_config_command(dst_device_params, dst_command.split("\n"))
+    return src_dev, dst_dev
+
+
+if __name__ == "__main__":
+    with open("dev1.yaml") as d1, open("dev2.yaml") as d2:
+        dev1 = yaml.safe_load(d1)
+        dev2 = yaml.safe_load(d2)
+    data = {
+        "tun_num": None,
+        "wan_ip_1": "192.168.100.1",
+        "wan_ip_2": "192.168.100.2",
+        "tun_ip_1": "10.0.1.1 255.255.255.252",
+        "tun_ip_2": "10.0.1.2 255.255.255.252",
+    }
+    template1 = "templates/gre_ipsec_vpn_1.txt"
+    template2 = "templates/gre_ipsec_vpn_2.txt"
+    print(configure_vpn(dev1, dev2, template1, template2, data))
