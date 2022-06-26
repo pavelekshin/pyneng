@@ -102,9 +102,7 @@ def configure_vpn(
     src_device_params, dst_device_params, src_template, dst_template, vpn_data_dict
 ):
     command = "sh ip int br | b Tunnel"
-    devices = []
-    [devices.append(d) for d in [src_device_params, dst_device_params]]
-    sh_int_tunnel = send_show_command_to_devices(devices, command=command)
+    sh_int_tunnel = send_show_command_to_devices([src_device_params,dst_device_params], command=command)
     unique_used_tunnels = {
         int(item)
         for key, items in sh_int_tunnel.items()
