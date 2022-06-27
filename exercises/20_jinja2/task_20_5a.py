@@ -68,7 +68,8 @@ def send_config_command(device, command):
         with ConnectHandler(**device) as ssh:
             ssh.enable()
             result = ssh.send_config_set(command)
-        return f"{result} \n"
+            router = ssh.find_prompt()
+        return {router: result}
     except (NetmikoTimeoutException, NetmikoAuthenticationException) as error:
         print(error)
 
@@ -80,6 +81,16 @@ def send_show_command_to_devices(devices, *, command=None, limit=3):
             future = executor.submit(send_show_command, device, command)
             future_list.append(future)
     return parse_data(future_list)
+
+
+def send_config_command_to_devices(devices, *, command=None, limit=3):
+    data = {}
+    with ThreadPoolExecutor(max_workers=limit) as executor:
+        result = executor.map(send_config_command, devices, command)
+        for d in result:
+            data.update(d)
+    dev1, dev2 = data.values()
+    return dev1, dev2
 
 
 def parse_data(future_list):
@@ -102,7 +113,9 @@ def configure_vpn(
     src_device_params, dst_device_params, src_template, dst_template, vpn_data_dict
 ):
     command = "sh ip int br | b Tunnel"
-    sh_int_tunnel = send_show_command_to_devices([src_device_params,dst_device_params], command=command)
+    sh_int_tunnel = send_show_command_to_devices(
+        [src_device_params, dst_device_params], command=command
+    )
     unique_used_tunnels = {
         int(item)
         for key, items in sh_int_tunnel.items()
@@ -113,8 +126,10 @@ def configure_vpn(
     src_command, dst_command = create_vpn_config(
         src_template, dst_template, vpn_data_dict
     )
-    src_dev = send_config_command(src_device_params, src_command.split("\n"))
-    dst_dev = send_config_command(dst_device_params, dst_command.split("\n"))
+    src_dev, dst_dev = send_config_command_to_devices(
+        [src_device_params, dst_device_params],
+        command=[src_command.split("\n"), dst_command.split("\n")],
+    )
     return src_dev, dst_dev
 
 
