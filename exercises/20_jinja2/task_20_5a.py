@@ -89,8 +89,7 @@ def send_config_command_to_devices(devices, *, command=None, limit=3):
         result = executor.map(send_config_command, devices, command)
         for d in result:
             data.update(d)
-    dev1, dev2 = data.values()
-    return dev1, dev2
+    return data.values()
 
 
 def parse_data(future_list):
