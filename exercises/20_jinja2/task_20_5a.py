@@ -119,7 +119,7 @@ def configure_vpn(
         for key, items in sh_int_tunnel.items()
         for item in items["tunnels_numbers"]
     }
-    select_tunnel = [num for num in range(0, 100) if num not in unique_used_tunnels]
+    select_tunnel = [num for num in range(0, max(unique_used_tunnels)+2) if num not in unique_used_tunnels]
     vpn_data_dict["tun_num"] = min(select_tunnel)
     src_command, dst_command = create_vpn_config(
         src_template, dst_template, vpn_data_dict
