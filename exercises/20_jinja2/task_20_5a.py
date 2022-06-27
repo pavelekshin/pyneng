@@ -111,9 +111,8 @@ def parse_data(future_list):
 def configure_vpn(
     src_device_params, dst_device_params, src_template, dst_template, vpn_data_dict
 ):
-    command = "sh ip int br | b Tunnel"
     sh_int_tunnel = send_show_command_to_devices(
-        [src_device_params, dst_device_params], command=command
+        [src_device_params, dst_device_params], command="sh ip int br | b Tunnel"
     )
     unique_used_tunnels = {
         int(item)
@@ -133,9 +132,9 @@ def configure_vpn(
 
 
 if __name__ == "__main__":
-    with open("dev1.yaml") as d1, open("dev2.yaml") as d2:
-        dev1 = yaml.safe_load(d1)
-        dev2 = yaml.safe_load(d2)
+    with open("devices.yaml") as f:
+        devices = yaml.safe_load(f)
+    r1, r2 = devices[:2]
     data = {
         "tun_num": None,
         "wan_ip_1": "192.168.100.1",
@@ -145,4 +144,4 @@ if __name__ == "__main__":
     }
     template1 = "templates/gre_ipsec_vpn_1.txt"
     template2 = "templates/gre_ipsec_vpn_2.txt"
-    print(configure_vpn(dev1, dev2, template1, template2, data))
+    print(configure_vpn(r1, r2, template1, template2, data))
