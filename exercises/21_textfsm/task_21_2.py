@@ -15,3 +15,19 @@
 
 Проверить работу шаблона с помощью функции parse_command_output из задания 21.1.
 """
+from pprint import pprint
+from netmiko import ConnectHandler
+import textfsm
+
+from task_21_1 import parse_command_output
+
+
+# вызов функции должен выглядеть так
+if __name__ == "__main__":
+    output = "output/sh_ip_dhcp_snooping.txt"
+    template = "templates/sh_ip_dhcp_snooping.template"
+    with open(output, "r") as f:
+        output = f.read()
+    pprint(output)
+    result = parse_command_output(template, output)
+    print(result)
