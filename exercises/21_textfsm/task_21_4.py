@@ -45,23 +45,8 @@ def send_show_command(device, command):
         print(error)
 
 
-def send_show_command_to_devices(devices, *, command=None, limit=3):
-    with ThreadPoolExecutor(max_workers=limit) as executor:
-        future_list = []
-        for device in devices:
-            future = executor.submit(send_show_command, device, command)
-            future_list.append(future)
-    output = ""
-    for out in future_list:
-        output += out.result()
-    return output
-
-
 def send_and_parse_show_command(device_dict, command, templates_path, index="index"):
-    if type(device_dict) is list:
-        command_output = send_show_command_to_devices(device_dict, command=command)
-    else:
-        command_output = send_show_command(device_dict, command)
+    command_output = send_show_command(device_dict, command)
     cli_table = clitable.CliTable(index, templates_path)
     cli_table.ParseCmd(
         command_output, {"Command": command}
@@ -69,13 +54,20 @@ def send_and_parse_show_command(device_dict, command, templates_path, index="ind
     data_rows = [list(row) for row in cli_table]
     header = list(cli_table.header)
     return [dict(zip(header, line)) for line in data_rows]
-
+    
 
 if __name__ == "__main__":
     with open("devices.yaml") as f:
         devices = yaml.safe_load(f)
+    r1 = {
+        "device_type": "cisco_ios",
+        "host": "192.168.100.1",
+        "username": "cisco",
+        "password": "cisco",
+        "secret": "cisco",
+    }
     print(
         send_and_parse_show_command(
-            devices, "sh ip int br", templates_path="templates", index="index"
+            r1, "sh ip int br", templates_path="templates", index="index"
         )
     )
