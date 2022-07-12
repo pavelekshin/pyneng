@@ -33,14 +33,37 @@ Out[3]:
 
 """
 
-topology_example = {
-    ("R1", "Eth0/0"): ("SW1", "Eth0/1"),
-    ("R2", "Eth0/0"): ("SW1", "Eth0/2"),
-    ("R2", "Eth0/1"): ("SW2", "Eth0/11"),
-    ("R3", "Eth0/0"): ("SW1", "Eth0/3"),
-    ("R3", "Eth0/1"): ("R4", "Eth0/0"),
-    ("R3", "Eth0/2"): ("R5", "Eth0/0"),
-    ("SW1", "Eth0/1"): ("R1", "Eth0/0"),
-    ("SW1", "Eth0/2"): ("R2", "Eth0/0"),
-    ("SW1", "Eth0/3"): ("R3", "Eth0/0"),
-}
+
+class Topology:
+    def __init__(self, topology):
+        self.topology = topology
+        self.topology = self.create_unique_topology()
+
+    def __str__(self):
+        return f"{self.topology}"
+
+    def __repr__(self):
+        return f"Topology {self}"
+
+    def create_unique_topology(self):
+        d = {}
+        for key, value in self.topology.items():
+            if key not in d.values():
+                d[key] = value
+        return d
+
+
+if __name__ == "__main__":
+    topology_example = {
+        ("R1", "Eth0/0"): ("SW1", "Eth0/1"),
+        ("R2", "Eth0/0"): ("SW1", "Eth0/2"),
+        ("R2", "Eth0/1"): ("SW2", "Eth0/11"),
+        ("R3", "Eth0/0"): ("SW1", "Eth0/3"),
+        ("R3", "Eth0/1"): ("R4", "Eth0/0"),
+        ("R3", "Eth0/2"): ("R5", "Eth0/0"),
+        ("SW1", "Eth0/1"): ("R1", "Eth0/0"),
+        ("SW1", "Eth0/2"): ("R2", "Eth0/0"),
+        ("SW1", "Eth0/3"): ("R3", "Eth0/0"),
+    }
+    top = Topology(topology_example)
+    print(top.topology)
