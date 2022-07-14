@@ -71,12 +71,10 @@ class Topology:
         return d
 
     def delete_link(self, key, value):
-        if (key in self.topology.keys()) and (value in self.topology.values()):
-            self.topology.pop(key)
-        elif (key in self.topology.values()) and (value in self.topology.keys()):
-            rev_topology = {v: k for k, v in self.topology.items()}
-            rev_topology.pop(key)
-            self.topology = {k: v for v, k in rev_topology.items()}
+        if self.topology.get(key) == value:
+            del self.topology[key]
+        elif self.topology.get(value) == key:
+            del self.topology[value]
         else:
             print(f"Такого соединения нет")
 
