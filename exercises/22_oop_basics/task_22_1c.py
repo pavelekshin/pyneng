@@ -68,12 +68,9 @@ class Topology:
 
     def delete_node(self, node):
         if self._check_node_in_topology(node):
-            d = {
-                k: v
-                for k, v in self.topology.items()
-                if (node not in k) and (node not in v)
-            }
-            self.topology = d
+            for k, v in list(self.topology.items()):
+                if (node in k) or (node in v):
+                    del self.topology[k]
         else:
             print(f"Такого устройства нет")
 
