@@ -67,6 +67,7 @@ ValueError: При выполнении команды "logging 0255.255.1" на
 from textfsm import clitable
 import telnetlib
 import time
+import re
 from pprint import pprint
 
 
@@ -97,6 +98,19 @@ class CiscoTelnet:
         header = list(cli_table.header)
         return [dict(zip(header, line)) for line in data_rows]
 
+    def _check_error_in_output(self, output, command, strict):
+        regex = "% (?P<err>.+)"
+        template = "При выполнении команды {cmd} на устройстве {host} возникла ошибка -> {error}"
+        error_in_cmd = re.search(regex, output)
+        if error_in_cmd:
+            message = template.format(
+                cmd=command, host=self.ip, error=error_in_cmd.group("err")
+            )
+            if strict:
+                raise ValueError(message)
+            else:
+                print(message)
+
     def send_show_command(
         self, command, parse=True, templates="templates", index="index"
     ):
@@ -116,22 +130,7 @@ class CiscoTelnet:
         for cmd in commands:
             self._write_line(cmd)
             output = self.telnet.read_until(b"#").decode("utf-8")
-            if "% Invalid input detected at '^' marker" in output and strict:
-                raise ValueError(
-                    f"При выполнении комманды {cmd} на устройстве {self.ip} возникла ошибка -> % Invalid input detected at '^' marker"
-                )
-            elif "% Ambiguous command" in output and strict:
-                raise ValueError(
-                    f"При выполнении комманды {cmd} на устройстве {self.ip} возникла ошибка -> % Ambiguous command"
-                )
-            elif "% Incomplete command" in output and strict:
-                raise ValueError(
-                    f"При выполнении комманды {cmd} на устройстве {self.ip} возникла ошибка -> % Incomplete command"
-                )
-            elif "%" in output and not strict:
-                print(
-                    f"При выполнении комманды {cmd} на устройстве {self.ip} возникла ошибка -> {output}"
-                )
+            self._check_error_in_output(output, cmd, strict=strict)
             result += output
         return result
 
@@ -149,4 +148,4 @@ if __name__ == "__main__":
     commands = commands_with_errors + correct_commands
 
     print(r1.send_show_command("show clock", parse=True))
-    print(r1.send_config_commands(commands, strict=True))
+    print(r1.send_config_commands(commands, strict=False))
