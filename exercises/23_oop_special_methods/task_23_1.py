@@ -53,9 +53,10 @@ class IPAddress:
 
     def _check_address(self, IPaddress):
         ip, mask = IPaddress.split("/")
-        if ipaddress.ip_address(ip):
-            pass
-        else:
+        try:
+            if ipaddress.ip_address(ip):
+                pass
+        except ValueError:
             raise ValueError("Incorrect IPv4 address")
         if int(mask) in range(8, 33):
             pass
