@@ -28,6 +28,12 @@ class CiscoSSH(BaseSSH):
         super().__init__(**device_params)
         self.ssh.enable()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.ssh.disconnect()
+
 
 if __name__ == "__main__":
     device_params = {
