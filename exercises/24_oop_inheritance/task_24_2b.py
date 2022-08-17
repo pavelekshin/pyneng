@@ -49,11 +49,11 @@ class MyNetmiko(CiscoIosSSH):
         self.disconnect()
 
     def _check_error_in_command(self, command, output):
-        regex = r"Invalid input detected" r"|Incomplete command" r"|Ambiguous command"
+        regex = "% (?P<err>.+)"
         match = re.search(regex, output)
         if match:
             raise ErrorInCommand(
-                f"""Комманда "{command}" выполнилась с ошибкой "{match.group()}" на устройстве {self.host}"""
+                f"""Комманда "{command}" выполнилась с ошибкой "{match.group("err")}" на устройстве {self.host}"""
             )
         else:
             return False
@@ -64,15 +64,13 @@ class MyNetmiko(CiscoIosSSH):
             return output
 
     def send_config_set(self, commands):
-        if commands is list:
-            for command in commands:
-                output = super().send_config_set(command)
-                if not self._check_error_in_command(command, output):
-                    result = +output
-        else:
-            output = super().send_config_set(commands)
-            if not self._check_error_in_command(commands, output):
-                result = +output
+        if isinstance(commands, str):
+            commands = [commands]
+        result = ""
+        for command in commands:
+            output = super().send_config_set(command)
+            if not self._check_error_in_command(command, output):
+                result += output
 
 
 if __name__ == "__main__":
