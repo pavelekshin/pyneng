@@ -68,7 +68,7 @@ class MyNetmiko(CiscoIosSSH):
             output = super().send_config_set(command)
             if not self._check_error_in_command(command, output):
                 result += output
-
+        return result
 
 if __name__ == "__main__":
     device_params = {
