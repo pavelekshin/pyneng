@@ -1,10 +1,6 @@
-## Известные проблемы/нюансы с заданиями
+## Задания к курсу Python для сетевых инженеров
 
-Описаны в файле [known_task_issues.md](https://github.com/pyneng/pyneng-online-12-jan-may-2022/blob/main/known_task_issues.md)
-
-## Вопросы и ответы из slack
-
-[Вопросы и ответы из slack](https://github.com/pyneng/pyneng-online-12-jan-may-2022/tree/main/slack_qa_files)
+https://pyneng.readthedocs.io/ru/latest/
 
 ## Задания
 

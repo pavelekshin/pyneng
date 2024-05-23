@@ -84,6 +84,7 @@ class MyNetmiko(CiscoIosSSH):
                 result += output
         return result
 
+
 if __name__ == "__main__":
     device_params = {
         "device_type": "cisco_ios",

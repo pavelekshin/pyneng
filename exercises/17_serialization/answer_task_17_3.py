@@ -24,25 +24,21 @@ R6           Fa 0/2          143           R S I           2811       Fa 0/0
 
 Проверить работу функции на содержимом файла sh_cdp_n_sw1.txt
 """
-
 import re
-from pprint import pprint
 
 
-def parse_sh_cdp_neighbors(cdp_output):
-    result = {}
-    regex = (
-        "(?P<dev>\S+?(?=>)).+\n"   # Router name
-        "|(?P<neigh>\w+[1-9]) +(?P<lport>Eth \S+) .+ (?P<rport>Eth \S+)"  #Neighbors, port
+def parse_sh_cdp_neighbors(command_output):
+    regex = re.compile(
+        r"(?P<r_dev>\w+)  +(?P<l_intf>\S+ \S+)"
+        r"  +\d+  +[\w ]+  +\S+ +(?P<r_intf>\S+ \S+)"
     )
-    match = re.finditer(regex, cdp_output, re.MULTILINE)
-    for m in match:
-        if m.lastgroup == "dev":
-            dev = m.group("dev")
-            result.setdefault(dev,{})
-        elif dev:
-            result[dev][m.group("lport")] = {m.group("neigh"):m.group("rport")}
-    return result
+    connect_dict = {}
+    l_dev = re.search(r"(\S+)[>#]", command_output).group(1)
+    connect_dict[l_dev] = {}
+    for match in regex.finditer(command_output):
+        r_dev, l_intf, r_intf = match.group("r_dev", "l_intf", "r_intf")
+        connect_dict[l_dev][l_intf] = {r_dev: r_intf}
+    return connect_dict
 
 
 if __name__ == "__main__":
