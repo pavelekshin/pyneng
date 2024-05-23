@@ -22,5 +22,8 @@ __pycache__/
 dist
 *.egg-info
 build
+
+.idea
+
 setup.py
 pyneng.py
